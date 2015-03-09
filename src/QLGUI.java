@@ -17,7 +17,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 
-public class GUI extends JFrame{
+public class QLGUI extends JFrame{
     private static final String MESSAGE_NAME = "Quicklyst";
     private static final int WINDOW_WIDTH = 800;
     private static final int WINDOW_HEIGHT = 600;
@@ -51,7 +51,7 @@ public class GUI extends JFrame{
     private JTextArea feedback;
     private JTextField command;
     
-    public GUI() {
+    public QLGUI() {
         super(MESSAGE_NAME);
         setLayout(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -180,7 +180,7 @@ public class GUI extends JFrame{
     }
     public static void main(String[] args) {
         QLLogic.clearWorkingList();
-        GUI g = new GUI();
+        QLGUI g = new QLGUI();
         
     }
    
