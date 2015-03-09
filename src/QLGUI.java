@@ -1,5 +1,6 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -15,10 +16,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.Spring;
+import javax.swing.SpringLayout;
 import javax.swing.border.LineBorder;
 
 public class QLGUI extends JFrame{
-    private static final String MESSAGE_NAME = "Quicklyst";
+    private static final String TITLE = "Quicklyst";
     private static final int WINDOW_WIDTH = 800;
     private static final int WINDOW_HEIGHT = 600;
     private static final int INNER_WIDTH = 783;
@@ -52,10 +55,13 @@ public class QLGUI extends JFrame{
     private JTextField command;
     
     public QLGUI() {
-        super(MESSAGE_NAME);
-        setLayout(null);
+        super(TITLE);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+        
+        Container contentPane = this.getContentPane();
+        SpringLayout layout = new SpringLayout();
+        
+        contentPane.setLayout(layout);
         
         taskList = new JPanel();
         taskList.setLayout(new GridBagLayout());
@@ -165,16 +171,41 @@ public class QLGUI extends JFrame{
         command.setToolTipText("Field 1 hover");
         add(command);
         
-        Insets insets = getInsets();
-        taskListScroll.setBounds(TASKLIST_OFFSET_X+insets.left, TASKLIST_OFFSET_Y+insets.top,
-                                 TASKLIST_WIDTH, TASKLIST_HEIGHT);
-        command.setBounds(COMMAND_OFFSET_X+insets.left, COMMAND_OFFSET_Y+insets.top, 
-                          COMMAND_WIDTH, COMMAND_HEIGHT);
-        overview.setBounds(OVERVIEW_OFFSET_X+insets.left, OVERVIEW_OFFSET_Y+insets.top, 
-                           OVERVIEW_WIDTH, OVERVIEW_HEIGHT);
-        feedbackScroll.setBounds(FEEDBACK_OFFSET_X+insets.left, FEEDBACK_OFFSET_Y+insets.top,
-                                 FEEDBACK_WIDTH, FEEDBACK_HEIGHT);
-
+        
+        layout.putConstraint(SpringLayout.WEST, command, 10,
+                SpringLayout.WEST, contentPane);
+        layout.putConstraint(SpringLayout.EAST, command, -10,
+                        SpringLayout.EAST, contentPane); 
+        layout.putConstraint(SpringLayout.SOUTH, command, -10,
+                        SpringLayout.SOUTH, contentPane);
+        layout.getConstraints(command).setHeight(Spring.constant(20));
+        
+        layout.putConstraint(SpringLayout.WEST, taskListScroll, 10,
+                        SpringLayout.WEST, contentPane);
+        layout.putConstraint(SpringLayout.NORTH, taskListScroll, 10,
+                        SpringLayout.NORTH, contentPane);
+        layout.putConstraint(SpringLayout.SOUTH, taskListScroll, -10, 
+                        SpringLayout.NORTH, command);
+        layout.getConstraints(taskListScroll).setWidth(Spring.constant(385));
+        
+        layout.putConstraint(SpringLayout.WEST, overview, 10,
+                        SpringLayout.EAST, taskListScroll);
+        layout.putConstraint(SpringLayout.NORTH, overview, 10,
+                        SpringLayout.NORTH, contentPane);
+        layout.putConstraint(SpringLayout.EAST, overview, -10,
+                        SpringLayout.EAST, contentPane);
+        layout.getConstraints(overview).setHeight(Spring.constant(220));
+        
+        layout.putConstraint(SpringLayout.WEST, feedbackScroll, 10,
+                        SpringLayout.EAST, taskListScroll);
+        layout.putConstraint(SpringLayout.NORTH, feedbackScroll, 10,
+                        SpringLayout.SOUTH, overview);
+        layout.putConstraint(SpringLayout.SOUTH, feedbackScroll, 0,
+                        SpringLayout.SOUTH, taskListScroll);
+        layout.putConstraint(SpringLayout.EAST, feedbackScroll, -10,
+                        SpringLayout.EAST, contentPane);
+        
+        setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         setVisible(true);
  
     }
