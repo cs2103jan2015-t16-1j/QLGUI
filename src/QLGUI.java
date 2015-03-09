@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -49,10 +50,10 @@ public class QLGUI extends JFrame{
     private static final int FEEDBACK_WIDTH = INNER_WIDTH-TASKLIST_WIDTH-3*PADDING_LEFT;
     private static final int FEEDBACK_HEIGHT = (TASKLIST_HEIGHT-PADDING_TOP)/2;
     
-    private JPanel taskList;
-    private JPanel overview;
-    private JTextArea feedback;
-    private JTextField command;
+    private JPanel _taskList;
+    private JPanel _overview;
+    private JTextArea _feedback;
+    private JTextField _command;
     
     public QLGUI() {
         super(TITLE);
@@ -63,35 +64,34 @@ public class QLGUI extends JFrame{
         
         contentPane.setLayout(layout);
         
-        taskList = new JPanel();
-        taskList.setLayout(new GridBagLayout());
+        _taskList = new JPanel(new GridBagLayout());
+        JPanel taskListBorderPane = new JPanel(new BorderLayout());
+        taskListBorderPane.add(_taskList, BorderLayout.NORTH);
+        JScrollPane taskListScroll = new JScrollPane(taskListBorderPane);
         
-        overview = new JPanel();
-        overview.setLayout(new BoxLayout(overview, BoxLayout.PAGE_AXIS));
+        _overview = new JPanel(new BorderLayout());
+        _overview.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1,
+                                                            Color.BLACK));
         
-        feedback = new JTextArea();
-        
-        JPanel temp = new JPanel(new BorderLayout());
-        temp.add(taskList, BorderLayout.NORTH);
-        JScrollPane taskListScroll = new JScrollPane(temp);
-        add(taskListScroll);
-        
-        JScrollPane feedbackScroll = new JScrollPane(feedback);
-        add(feedbackScroll);
-        overview.setBackground(Color.BLUE);
-        add(overview);
+        _feedback = new JTextArea();
+        _feedback.setEditable(false);
+        _feedback.setLineWrap(true);
+        _feedback.setWrapStyleWord(true);
+        JPanel feedbackBorderPane = new JPanel(new BorderLayout());
+        feedbackBorderPane.setBackground(_feedback.getBackground());
+        feedbackBorderPane.add(_feedback, BorderLayout.SOUTH);
+        JScrollPane feedbackScroll = new JScrollPane(feedbackBorderPane);        
        
-        command = new JTextField();
-        
-        command.addActionListener(new ActionListener(){
+        _command = new JTextField();
+        _command.addActionListener(new ActionListener(){
 
             public void actionPerformed(ActionEvent e){
                 StringBuilder fb = new StringBuilder();
-                List<Task> tasks = QLLogic.executeCommand(command.getText(), fb);
+                List<Task> tasks = QLLogic.executeCommand(_command.getText(), fb);
                 if (!fb.toString().isEmpty()) {
-                    feedback.append(fb.toString() + "\r\n");
+                    _feedback.append(fb.toString() + "\r\n");
                 }
-                taskList.removeAll();
+                _taskList.removeAll();
                 int i = 1;
                 for (Task t : tasks)
                 {
@@ -158,48 +158,49 @@ public class QLGUI extends JFrame{
                     con.gridwidth = 1;
                     con.gridx = 0;
                     con.gridy = i-1;
-                    taskList.add(p, con);
+                    _taskList.add(p, con);
                     i++;
                 }
-                taskList.revalidate();
-                taskList.repaint();
+                _taskList.revalidate();
+                _taskList.repaint();
             }
           }
         );
         
+        add(_command);
+        add(taskListScroll);
+        add(feedbackScroll);
+        add(_overview);
         
-        command.setToolTipText("Field 1 hover");
-        add(command);
         
-        
-        layout.putConstraint(SpringLayout.WEST, command, 10,
+        layout.putConstraint(SpringLayout.WEST, _command, 10,
                 SpringLayout.WEST, contentPane);
-        layout.putConstraint(SpringLayout.EAST, command, -10,
+        layout.putConstraint(SpringLayout.EAST, _command, -10,
                         SpringLayout.EAST, contentPane); 
-        layout.putConstraint(SpringLayout.SOUTH, command, -10,
+        layout.putConstraint(SpringLayout.SOUTH, _command, -10,
                         SpringLayout.SOUTH, contentPane);
-        layout.getConstraints(command).setHeight(Spring.constant(20));
+        layout.getConstraints(_command).setHeight(Spring.constant(20));
         
         layout.putConstraint(SpringLayout.WEST, taskListScroll, 10,
                         SpringLayout.WEST, contentPane);
         layout.putConstraint(SpringLayout.NORTH, taskListScroll, 10,
                         SpringLayout.NORTH, contentPane);
         layout.putConstraint(SpringLayout.SOUTH, taskListScroll, -10, 
-                        SpringLayout.NORTH, command);
+                        SpringLayout.NORTH, _command);
         layout.getConstraints(taskListScroll).setWidth(Spring.constant(385));
         
-        layout.putConstraint(SpringLayout.WEST, overview, 10,
+        layout.putConstraint(SpringLayout.WEST, _overview, 10,
                         SpringLayout.EAST, taskListScroll);
-        layout.putConstraint(SpringLayout.NORTH, overview, 10,
+        layout.putConstraint(SpringLayout.NORTH, _overview, 10,
                         SpringLayout.NORTH, contentPane);
-        layout.putConstraint(SpringLayout.EAST, overview, -10,
+        layout.putConstraint(SpringLayout.EAST, _overview, -10,
                         SpringLayout.EAST, contentPane);
-        layout.getConstraints(overview).setHeight(Spring.constant(220));
+        layout.getConstraints(_overview).setHeight(Spring.constant(220));
         
         layout.putConstraint(SpringLayout.WEST, feedbackScroll, 10,
                         SpringLayout.EAST, taskListScroll);
         layout.putConstraint(SpringLayout.NORTH, feedbackScroll, 10,
-                        SpringLayout.SOUTH, overview);
+                        SpringLayout.SOUTH, _overview);
         layout.putConstraint(SpringLayout.SOUTH, feedbackScroll, 0,
                         SpringLayout.SOUTH, taskListScroll);
         layout.putConstraint(SpringLayout.EAST, feedbackScroll, -10,
