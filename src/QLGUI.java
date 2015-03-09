@@ -105,62 +105,60 @@ public class QLGUI extends JFrame{
                 int i = 1;
                 for (Task t : tasks)
                 {
+                    SpringLayout singleTaskLayout = new SpringLayout();
+                    JPanel singleTaskPane = new JPanel(singleTaskLayout);
+                    singleTaskPane.setBorder(new LineBorder(Color.BLACK));
                     
-                    JPanel p = new JPanel();
-                    p.setLayout(new GridBagLayout());
-                    p.setBorder(new LineBorder(Color.BLACK));
-                    
-                    JPanel c = new JPanel();
-                    c.setBackground(Color.RED);
+                    JPanel priorityColorPane = new JPanel();
+                    priorityColorPane.setBackground(Color.RED);
                     JLabel name = new JLabel(t.getName());
                     JLabel index = new JLabel("#" + i);
                     JLabel date = new JLabel(t.getStartDate() + " - " + t.getDueDate());
                     JLabel priority = new JLabel(((Character)t.getPriority()).toString());
+                   
                     
+                    singleTaskPane.add(priorityColorPane);
+                    singleTaskPane.add(name);
+                    singleTaskPane.add(index);
+                    singleTaskPane.add(date);
+                    singleTaskPane.add(priority);
                     
+                    singleTaskLayout.putConstraint(SpringLayout.SOUTH, singleTaskPane, 5,
+                                                   SpringLayout.SOUTH, date);
                     
+                    singleTaskLayout.putConstraint(SpringLayout.WEST, priorityColorPane, 5,
+                                                   SpringLayout.WEST, singleTaskPane);
+                    singleTaskLayout.putConstraint(SpringLayout.NORTH, priorityColorPane, 5,
+                                                   SpringLayout.NORTH, singleTaskPane);
+                    singleTaskLayout.putConstraint(SpringLayout.SOUTH, priorityColorPane, -5,
+                                                   SpringLayout.SOUTH, singleTaskPane);
+                    
+                    singleTaskLayout.putConstraint(SpringLayout.WEST, name, 5,
+                                                   SpringLayout.EAST, priorityColorPane);
+                    singleTaskLayout.putConstraint(SpringLayout.NORTH, name, 5,
+                                                   SpringLayout.NORTH, singleTaskPane);
+                    singleTaskLayout.putConstraint(SpringLayout.EAST, name, -5,
+                                                   SpringLayout.WEST, index);
+                    
+                    singleTaskLayout.putConstraint(SpringLayout.EAST, index, -5,
+                                                   SpringLayout.EAST, singleTaskPane);
+                    singleTaskLayout.putConstraint(SpringLayout.NORTH, index, 5,
+                                                   SpringLayout.NORTH, singleTaskPane);
+                  
+                    singleTaskLayout.putConstraint(SpringLayout.WEST, date, 5,
+                                                   SpringLayout.EAST, priorityColorPane);
+                    singleTaskLayout.putConstraint(SpringLayout.NORTH, date, 5,
+                                                   SpringLayout.SOUTH, name);
+                    singleTaskLayout.putConstraint(SpringLayout.EAST, date, -5,
+                                                   SpringLayout.WEST, priority);
+                    
+                    singleTaskLayout.putConstraint(SpringLayout.SOUTH, priority, -5,
+                                                   SpringLayout.SOUTH, singleTaskPane);
+                    singleTaskLayout.putConstraint(SpringLayout.EAST, priority, -5,
+                                                   SpringLayout.EAST, singleTaskPane);
+                                       
                     GridBagConstraints con = new GridBagConstraints();
                     con.insets = new Insets(5, 5, 5, 5);
-                    con.gridheight = 2;
-                    con.gridwidth = 1;
-                    con.gridx = 0;
-                    con.gridy = 0;
-                    con.fill = GridBagConstraints.VERTICAL;
-                    p.add(c, con);
-                    
-                    con.gridheight = 1;
-                    con.gridwidth = 1;
-                    con.gridx = 1;
-                    con.gridy = 0;
-                    con.weightx = 1;
-                    con.fill = GridBagConstraints.HORIZONTAL;
-                    con.anchor = GridBagConstraints.WEST;
-                    p.add(name, con);
-                    
-                    con.weightx = 0;
-                    con.fill = GridBagConstraints.NONE;
-                    con.anchor = GridBagConstraints.EAST;
-                    con.gridheight = 1;
-                    con.gridwidth = 1;
-                    con.gridx = 2;
-                    con.gridy = 0;
-                    p.add(index, con);
-                    
-                    con.anchor = GridBagConstraints.WEST;
-                    con.gridheight = 1;
-                    con.gridwidth = 1;
-                    con.gridx = 1;
-                    con.gridy = 1;
-                    p.add(date, con);
-                    
-                    con.anchor = GridBagConstraints.EAST;
-                    con.gridheight = 1;
-                    con.gridwidth = 1;
-                    con.gridx = 2;
-                    con.gridy = 1;
-                    p.add(priority, con);
-                    
-                    
                     con.weightx = 1;
                     con.anchor = GridBagConstraints.NORTHEAST;
                     con.fill = GridBagConstraints.HORIZONTAL;
@@ -168,7 +166,7 @@ public class QLGUI extends JFrame{
                     con.gridwidth = 1;
                     con.gridx = 0;
                     con.gridy = i-1;
-                    _taskList.add(p, con);
+                    _taskList.add(singleTaskPane, con);
                     i++;
                 }
                 _taskList.revalidate();
@@ -182,39 +180,37 @@ public class QLGUI extends JFrame{
         add(feedbackScroll);
         add(overviewPane);
         
-        
         layout.putConstraint(SpringLayout.WEST, _command, 10,
-                SpringLayout.WEST, contentPane);
+                             SpringLayout.WEST, contentPane);
         layout.putConstraint(SpringLayout.EAST, _command, -10,
-                        SpringLayout.EAST, contentPane); 
+                             SpringLayout.EAST, contentPane); 
         layout.putConstraint(SpringLayout.SOUTH, _command, -10,
-                        SpringLayout.SOUTH, contentPane);
-        layout.getConstraints(_command).setHeight(Spring.constant(20));
+                             SpringLayout.SOUTH, contentPane);
         
         layout.putConstraint(SpringLayout.WEST, taskListScroll, 10,
-                        SpringLayout.WEST, contentPane);
+                             SpringLayout.WEST, contentPane);
         layout.putConstraint(SpringLayout.NORTH, taskListScroll, 10,
-                        SpringLayout.NORTH, contentPane);
+                             SpringLayout.NORTH, contentPane);
         layout.putConstraint(SpringLayout.SOUTH, taskListScroll, -10, 
-                        SpringLayout.NORTH, _command);
+                             SpringLayout.NORTH, _command);
         layout.getConstraints(taskListScroll).setWidth(Spring.constant(385));
         
         layout.putConstraint(SpringLayout.WEST, overviewPane, 10,
-                        SpringLayout.EAST, taskListScroll);
+                             SpringLayout.EAST, taskListScroll);
         layout.putConstraint(SpringLayout.NORTH, overviewPane, 10,
-                        SpringLayout.NORTH, contentPane);
+                             SpringLayout.NORTH, contentPane);
         layout.putConstraint(SpringLayout.EAST, overviewPane, -10,
-                        SpringLayout.EAST, contentPane);
+                             SpringLayout.EAST, contentPane);
         layout.getConstraints(overviewPane).setHeight(Spring.constant(220));
         
         layout.putConstraint(SpringLayout.WEST, feedbackScroll, 10,
-                        SpringLayout.EAST, taskListScroll);
+                             SpringLayout.EAST, taskListScroll);
         layout.putConstraint(SpringLayout.NORTH, feedbackScroll, 10,
-                        SpringLayout.SOUTH, overviewPane);
+                             SpringLayout.SOUTH, overviewPane);
         layout.putConstraint(SpringLayout.SOUTH, feedbackScroll, 0,
-                        SpringLayout.SOUTH, taskListScroll);
+                             SpringLayout.SOUTH, taskListScroll);
         layout.putConstraint(SpringLayout.EAST, feedbackScroll, -10,
-                        SpringLayout.EAST, contentPane);
+                             SpringLayout.EAST, contentPane);
         
         setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         setVisible(true);
