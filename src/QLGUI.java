@@ -6,6 +6,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -103,20 +104,33 @@ public class QLGUI extends JFrame{
                 }
                 _taskList.removeAll();
                 int i = 1;
-                for (Task t : tasks)
+                for (Task task : tasks)
                 {
                     SpringLayout singleTaskLayout = new SpringLayout();
                     JPanel singleTaskPane = new JPanel(singleTaskLayout);
                     singleTaskPane.setBorder(new LineBorder(Color.BLACK));
                     
                     JPanel priorityColorPane = new JPanel();
-                    priorityColorPane.setBackground(Color.RED);
-                    JLabel name = new JLabel(t.getName());
+                    JLabel name = new JLabel(task.getName());
                     JLabel index = new JLabel("#" + i);
-                    JLabel date = new JLabel(t.getStartDate() + " - " + t.getDueDate());
-                    JLabel priority = new JLabel(((Character)t.getPriority()).toString());
-                   
+                    JLabel date = new JLabel(task.getStartDate() + " - " + task.getDueDate());
+                    JLabel priority = new JLabel((task.getPriority()).toString());
                     
+                    switch (task.getPriority()) {
+                        case "H" : 
+                            priorityColorPane.setBackground(Color.RED);
+                            break;
+                        case "M" : 
+                            priorityColorPane.setBackground(Color.ORANGE);
+                            break;
+                        case "L" : 
+                            priorityColorPane.setBackground(Color.YELLOW);
+                            break;
+                        default :
+                            System.out.println("Invalid priority type " + task.getPriority());
+                            break;
+                    }
+  
                     singleTaskPane.add(priorityColorPane);
                     singleTaskPane.add(name);
                     singleTaskPane.add(index);
@@ -171,6 +185,47 @@ public class QLGUI extends JFrame{
                 }
                 _taskList.revalidate();
                 _taskList.repaint();
+                
+                // update the overview based on dates
+                int dueToday = 0, dueTomorrow = 0, overdue = 0, completed = 0;
+                Calendar now = Calendar.getInstance();
+                Calendar today = (Calendar) now.clone();
+                today.set(Calendar.HOUR_OF_DAY, 0);
+                today.set(Calendar.MINUTE, 0);
+                today.set(Calendar.SECOND, 0);
+                today.set(Calendar.MILLISECOND, 0);
+                Calendar tomorrow = (Calendar) today.clone();
+                tomorrow.add(Calendar.DAY_OF_MONTH, 1);
+                Calendar twoDaysAfter = (Calendar) tomorrow.clone();
+                twoDaysAfter.add(Calendar.DAY_OF_MONTH, 1);
+                
+                for (int j = 0; j < tasks.size(); ++j) {
+                    if (tasks.get(j).getIsCompleted()) {
+                        completed++;
+                        continue;
+                    }
+                    Calendar due = tasks.get(j).getDueDate();
+                    if (due == null) {
+                        continue;
+                    }
+                    if ((due.compareTo(today) >= 0) &&
+                        (due.compareTo(tomorrow) < 0)) {
+                        dueToday++;
+                    } else if ((due.compareTo(tomorrow) >= 0) &&
+                               (due.compareTo(twoDaysAfter) < 0)) {
+                        dueTomorrow++;
+                    } 
+                    if (due.compareTo(now) < 0) {
+                        overdue++;
+                    } 
+                }
+                
+                _overview.setText(String.format("<html><u>Overview</u><br>" +
+                                                "%d due today<br>" +
+                                                "%d due tomorrow<br>" +
+                                                "%d overdue<br>" +
+                                                "%d completed</html>",
+                                                dueToday, dueTomorrow, overdue, completed));
             }
           }
         );
