@@ -6,12 +6,11 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -26,30 +25,6 @@ public class QLGUI extends JFrame{
     private static final String TITLE = "Quicklyst";
     private static final int WINDOW_WIDTH = 800;
     private static final int WINDOW_HEIGHT = 600;
-    private static final int INNER_WIDTH = 783;
-    private static final int INNER_HEIGHT = 557;
-    private static final int PADDING_LEFT = 10;
-    private static final int PADDING_TOP = 10;
-    
-    private static final int TASKLIST_OFFSET_X = PADDING_LEFT;
-    private static final int TASKLIST_OFFSET_Y = PADDING_TOP;
-    private static final int TASKLIST_WIDTH = 390;
-    private static final int TASKLIST_HEIGHT = 500;
-    
-    private static final int COMMAND_OFFSET_X = PADDING_LEFT;
-    private static final int COMMAND_OFFSET_Y = 2*PADDING_TOP+TASKLIST_HEIGHT;
-    private static final int COMMAND_WIDTH = INNER_WIDTH-2*PADDING_LEFT;
-    private static final int COMMAND_HEIGHT = INNER_HEIGHT-3*PADDING_TOP-TASKLIST_HEIGHT;
-    
-    private final static int OVERVIEW_OFFSET_X = 2*PADDING_LEFT+TASKLIST_WIDTH;
-    private final static int OVERVIEW_OFFSET_Y = PADDING_TOP;
-    private final static int OVERVIEW_WIDTH = INNER_WIDTH-TASKLIST_WIDTH-3*PADDING_LEFT;
-    private final static int OVERVIEW_HEIGHT = (TASKLIST_HEIGHT-PADDING_TOP)/2;
-    
-    private static final int FEEDBACK_OFFSET_X = 2*PADDING_LEFT+TASKLIST_WIDTH;
-    private static final int FEEDBACK_OFFSET_Y = (TASKLIST_HEIGHT-PADDING_TOP)/2+2*PADDING_TOP;
-    private static final int FEEDBACK_WIDTH = INNER_WIDTH-TASKLIST_WIDTH-3*PADDING_LEFT;
-    private static final int FEEDBACK_HEIGHT = (TASKLIST_HEIGHT-PADDING_TOP)/2;
     
     private JPanel _taskList;
     private JLabel _overview;
@@ -108,28 +83,44 @@ public class QLGUI extends JFrame{
                 {
                     SpringLayout singleTaskLayout = new SpringLayout();
                     JPanel singleTaskPane = new JPanel(singleTaskLayout);
-                    singleTaskPane.setBorder(new LineBorder(Color.BLACK));
                     
                     JPanel priorityColorPane = new JPanel();
                     JLabel name = new JLabel(task.getName());
                     JLabel index = new JLabel("#" + i);
-                    JLabel date = new JLabel(task.getStartDate() + " - " + task.getDueDate());
-                    JLabel priority = new JLabel((task.getPriority()).toString());
+                    JLabel date = new JLabel(" ");
+                    JLabel priority = new JLabel();
                     
-                    switch (task.getPriority()) {
-                        case "H" : 
-                            priorityColorPane.setBackground(Color.RED);
-                            break;
-                        case "M" : 
-                            priorityColorPane.setBackground(Color.ORANGE);
-                            break;
-                        case "L" : 
-                            priorityColorPane.setBackground(Color.YELLOW);
-                            break;
-                        default :
-                            System.out.println("Invalid priority type " + task.getPriority());
-                            break;
+                    singleTaskPane.setBorder(new LineBorder(Color.BLACK));
+                    if (task.getIsCompleted()) {
+                        singleTaskPane.setBackground(Color.CYAN);
+                    } else if (task.getIsOverdue()) {
+                        singleTaskPane.setBackground(Color.PINK);
                     }
+                    
+                    if (task.getDueDate() != null) {
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd/M/yyyy");
+                        date.setText("due " + sdf.format(task.getDueDate().getTime()));                         
+                    }
+
+                    if (task.getPriority() != null) {
+                        
+                        priority.setText(task.getPriority());
+                    
+                        switch (task.getPriority()) {
+                            case "H" : 
+                                priorityColorPane.setBackground(Color.RED);
+                                break;
+                            case "M" : 
+                                priorityColorPane.setBackground(Color.ORANGE);
+                                break;
+                            case "L" : 
+                                priorityColorPane.setBackground(Color.YELLOW);
+                                break;
+                            default :
+                                break;
+                        }
+                    }
+                    
   
                     singleTaskPane.add(priorityColorPane);
                     singleTaskPane.add(name);
@@ -272,7 +263,7 @@ public class QLGUI extends JFrame{
  
     }
     public static void main(String[] args) {
-        QLLogic.clearWorkingList();
+        QLLogic.setup("save.json");
         QLGUI g = new QLGUI();
         
     }
