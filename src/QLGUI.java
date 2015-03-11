@@ -11,6 +11,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -46,18 +47,11 @@ public class QLGUI extends JFrame{
         JScrollPane taskListScroll = new JScrollPane(taskListBorderPane);
         
         JPanel overviewPane = new JPanel(new BorderLayout());
-        overviewPane.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1,
-                                                            Color.BLACK));
+        overviewPane.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK));
         
         _overview = new JLabel();
         _overview.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
         overviewPane.add(_overview, BorderLayout.NORTH);
-        _overview.setText(String.format("<html><u>Overview</u><br>" +
-                                             "%d due today<br>" +
-                                             "%d due tomorrow<br>" +
-                                             "%d overdue<br>" +
-                                             "%d completed</html>",
-                                             0, 0, 0, 0));
         
         _feedback = new JTextArea();
         _feedback.setEditable(false);
@@ -77,146 +71,8 @@ public class QLGUI extends JFrame{
                 if (!fb.toString().isEmpty()) {
                     _feedback.append(fb.toString() + "\r\n");
                 }
-                _taskList.removeAll();
-                int i = 1;
-                for (Task task : tasks)
-                {
-                    SpringLayout singleTaskLayout = new SpringLayout();
-                    JPanel singleTaskPane = new JPanel(singleTaskLayout);
-                    
-                    JPanel priorityColorPane = new JPanel();
-                    JLabel name = new JLabel(task.getName());
-                    JLabel index = new JLabel("#" + i);
-                    JLabel date = new JLabel(" ");
-                    JLabel priority = new JLabel();
-                    
-                    singleTaskPane.setBorder(new LineBorder(Color.BLACK));
-                    if (task.getIsCompleted()) {
-                        singleTaskPane.setBackground(Color.CYAN);
-                    } else if (task.getIsOverdue()) {
-                        singleTaskPane.setBackground(Color.PINK);
-                    }
-                    
-                    if (task.getDueDate() != null) {
-                        SimpleDateFormat sdf = new SimpleDateFormat("dd/M/yyyy");
-                        date.setText("due " + sdf.format(task.getDueDate().getTime()));                         
-                    }
-
-                    if (task.getPriority() != null) {
-                        
-                        priority.setText(task.getPriority());
-                    
-                        switch (task.getPriority()) {
-                            case "H" : 
-                                priorityColorPane.setBackground(Color.RED);
-                                break;
-                            case "M" : 
-                                priorityColorPane.setBackground(Color.ORANGE);
-                                break;
-                            case "L" : 
-                                priorityColorPane.setBackground(Color.YELLOW);
-                                break;
-                            default :
-                                break;
-                        }
-                    }
-                    
-  
-                    singleTaskPane.add(priorityColorPane);
-                    singleTaskPane.add(name);
-                    singleTaskPane.add(index);
-                    singleTaskPane.add(date);
-                    singleTaskPane.add(priority);
-                    
-                    singleTaskLayout.putConstraint(SpringLayout.SOUTH, singleTaskPane, 5,
-                                                   SpringLayout.SOUTH, date);
-                    
-                    singleTaskLayout.putConstraint(SpringLayout.WEST, priorityColorPane, 5,
-                                                   SpringLayout.WEST, singleTaskPane);
-                    singleTaskLayout.putConstraint(SpringLayout.NORTH, priorityColorPane, 5,
-                                                   SpringLayout.NORTH, singleTaskPane);
-                    singleTaskLayout.putConstraint(SpringLayout.SOUTH, priorityColorPane, -5,
-                                                   SpringLayout.SOUTH, singleTaskPane);
-                    
-                    singleTaskLayout.putConstraint(SpringLayout.WEST, name, 5,
-                                                   SpringLayout.EAST, priorityColorPane);
-                    singleTaskLayout.putConstraint(SpringLayout.NORTH, name, 5,
-                                                   SpringLayout.NORTH, singleTaskPane);
-                    singleTaskLayout.putConstraint(SpringLayout.EAST, name, -5,
-                                                   SpringLayout.WEST, index);
-                    
-                    singleTaskLayout.putConstraint(SpringLayout.EAST, index, -5,
-                                                   SpringLayout.EAST, singleTaskPane);
-                    singleTaskLayout.putConstraint(SpringLayout.NORTH, index, 5,
-                                                   SpringLayout.NORTH, singleTaskPane);
-                  
-                    singleTaskLayout.putConstraint(SpringLayout.WEST, date, 5,
-                                                   SpringLayout.EAST, priorityColorPane);
-                    singleTaskLayout.putConstraint(SpringLayout.NORTH, date, 5,
-                                                   SpringLayout.SOUTH, name);
-                    singleTaskLayout.putConstraint(SpringLayout.EAST, date, -5,
-                                                   SpringLayout.WEST, priority);
-                    
-                    singleTaskLayout.putConstraint(SpringLayout.SOUTH, priority, -5,
-                                                   SpringLayout.SOUTH, singleTaskPane);
-                    singleTaskLayout.putConstraint(SpringLayout.EAST, priority, -5,
-                                                   SpringLayout.EAST, singleTaskPane);
-                                       
-                    GridBagConstraints con = new GridBagConstraints();
-                    con.insets = new Insets(5, 5, 5, 5);
-                    con.weightx = 1;
-                    con.anchor = GridBagConstraints.NORTHEAST;
-                    con.fill = GridBagConstraints.HORIZONTAL;
-                    con.gridheight = 1;
-                    con.gridwidth = 1;
-                    con.gridx = 0;
-                    con.gridy = i-1;
-                    _taskList.add(singleTaskPane, con);
-                    i++;
-                }
-                _taskList.revalidate();
-                _taskList.repaint();
-                
-                // update the overview based on dates
-                int dueToday = 0, dueTomorrow = 0, overdue = 0, completed = 0;
-                Calendar now = Calendar.getInstance();
-                Calendar today = (Calendar) now.clone();
-                today.set(Calendar.HOUR_OF_DAY, 0);
-                today.set(Calendar.MINUTE, 0);
-                today.set(Calendar.SECOND, 0);
-                today.set(Calendar.MILLISECOND, 0);
-                Calendar tomorrow = (Calendar) today.clone();
-                tomorrow.add(Calendar.DAY_OF_MONTH, 1);
-                Calendar twoDaysAfter = (Calendar) tomorrow.clone();
-                twoDaysAfter.add(Calendar.DAY_OF_MONTH, 1);
-                
-                for (int j = 0; j < tasks.size(); ++j) {
-                    if (tasks.get(j).getIsCompleted()) {
-                        completed++;
-                        continue;
-                    }
-                    Calendar due = tasks.get(j).getDueDate();
-                    if (due == null) {
-                        continue;
-                    }
-                    if ((due.compareTo(today) >= 0) &&
-                        (due.compareTo(tomorrow) < 0)) {
-                        dueToday++;
-                    } else if ((due.compareTo(tomorrow) >= 0) &&
-                               (due.compareTo(twoDaysAfter) < 0)) {
-                        dueTomorrow++;
-                    } 
-                    if (due.compareTo(now) < 0) {
-                        overdue++;
-                    } 
-                }
-                
-                _overview.setText(String.format("<html><u>Overview</u><br>" +
-                                                "%d due today<br>" +
-                                                "%d due tomorrow<br>" +
-                                                "%d overdue<br>" +
-                                                "%d completed</html>",
-                                                dueToday, dueTomorrow, overdue, completed));
+                updateUIWithTaskList(tasks);
+                _command.setText("");
             }
           }
         );
@@ -226,11 +82,23 @@ public class QLGUI extends JFrame{
         add(feedbackScroll);
         add(overviewPane);
         
-        layout.putConstraint(SpringLayout.WEST, _command, 10,
+        setConstraintsForMainFrame(layout, contentPane, taskListScroll,
+                                   overviewPane, feedbackScroll, _command);
+        
+        setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+        setVisible(true);
+ 
+        updateUIWithTaskList(QLLogic.setup("save.json"));
+    }
+    private void setConstraintsForMainFrame(SpringLayout layout,
+            Container contentPane, JComponent taskListScroll,
+            JComponent overviewPane, JComponent feedbackScroll,
+            JComponent commandTextField) {
+        layout.putConstraint(SpringLayout.WEST, commandTextField, 10,
                              SpringLayout.WEST, contentPane);
-        layout.putConstraint(SpringLayout.EAST, _command, -10,
+        layout.putConstraint(SpringLayout.EAST, commandTextField, -10,
                              SpringLayout.EAST, contentPane); 
-        layout.putConstraint(SpringLayout.SOUTH, _command, -10,
+        layout.putConstraint(SpringLayout.SOUTH, commandTextField, -10,
                              SpringLayout.SOUTH, contentPane);
         
         layout.putConstraint(SpringLayout.WEST, taskListScroll, 10,
@@ -238,7 +106,7 @@ public class QLGUI extends JFrame{
         layout.putConstraint(SpringLayout.NORTH, taskListScroll, 10,
                              SpringLayout.NORTH, contentPane);
         layout.putConstraint(SpringLayout.SOUTH, taskListScroll, -10, 
-                             SpringLayout.NORTH, _command);
+                             SpringLayout.NORTH, commandTextField);
         layout.getConstraints(taskListScroll).setWidth(Spring.constant(385));
         
         layout.putConstraint(SpringLayout.WEST, overviewPane, 10,
@@ -257,15 +125,150 @@ public class QLGUI extends JFrame{
                              SpringLayout.SOUTH, taskListScroll);
         layout.putConstraint(SpringLayout.EAST, feedbackScroll, -10,
                              SpringLayout.EAST, contentPane);
-        
-        setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-        setVisible(true);
- 
     }
     public static void main(String[] args) {
-        QLLogic.setup("save.json");
         QLGUI g = new QLGUI();
         
+    }
+    private void updateUIWithTaskList(List<Task> tasks) {
+        _taskList.removeAll();
+        int i = 1;
+        for (Task task : tasks)
+        {
+            SpringLayout singleTaskLayout = new SpringLayout();
+            JPanel singleTaskPane = new JPanel(singleTaskLayout);
+            
+            JPanel priorityColorPane = new JPanel();
+            JLabel name = new JLabel(task.getName());
+            JLabel index = new JLabel("#" + i);
+            JLabel date = new JLabel(" ");
+            JLabel priority = new JLabel();
+            
+            singleTaskPane.setBorder(new LineBorder(Color.BLACK));
+            if (task.getIsCompleted()) {
+                singleTaskPane.setBackground(Color.CYAN);
+            } else if (task.getIsOverdue()) {
+                singleTaskPane.setBackground(Color.PINK);
+            }
+            
+            if (task.getDueDate() != null) {
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/M/yyyy");
+                date.setText("due " + sdf.format(task.getDueDate().getTime()));                         
+            }
+
+            if (task.getPriority() != null) {
+                
+                priority.setText(task.getPriority());
+            
+                switch (task.getPriority()) {
+                    case "H" : 
+                        priorityColorPane.setBackground(Color.RED);
+                        break;
+                    case "M" : 
+                        priorityColorPane.setBackground(Color.ORANGE);
+                        break;
+                    case "L" : 
+                        priorityColorPane.setBackground(Color.YELLOW);
+                        break;
+                    default :
+                        break;
+                }
+            }
+            
+  
+            singleTaskPane.add(priorityColorPane);
+            singleTaskPane.add(name);
+            singleTaskPane.add(index);
+            singleTaskPane.add(date);
+            singleTaskPane.add(priority);
+            
+            singleTaskLayout.putConstraint(SpringLayout.SOUTH, singleTaskPane, 5,
+                                           SpringLayout.SOUTH, date);
+            
+            singleTaskLayout.putConstraint(SpringLayout.WEST, priorityColorPane, 5,
+                                           SpringLayout.WEST, singleTaskPane);
+            singleTaskLayout.putConstraint(SpringLayout.NORTH, priorityColorPane, 5,
+                                           SpringLayout.NORTH, singleTaskPane);
+            singleTaskLayout.putConstraint(SpringLayout.SOUTH, priorityColorPane, -5,
+                                           SpringLayout.SOUTH, singleTaskPane);
+            
+            singleTaskLayout.putConstraint(SpringLayout.WEST, name, 10,
+                                           SpringLayout.EAST, priorityColorPane);
+            singleTaskLayout.putConstraint(SpringLayout.NORTH, name, 5,
+                                           SpringLayout.NORTH, singleTaskPane);
+            singleTaskLayout.putConstraint(SpringLayout.EAST, name, -5,
+                                           SpringLayout.WEST, index);
+            
+            singleTaskLayout.putConstraint(SpringLayout.EAST, index, -10,
+                                           SpringLayout.EAST, singleTaskPane);
+            singleTaskLayout.putConstraint(SpringLayout.NORTH, index, 5,
+                                           SpringLayout.NORTH, singleTaskPane);
+          
+            singleTaskLayout.putConstraint(SpringLayout.WEST, date, 10,
+                                           SpringLayout.EAST, priorityColorPane);
+            singleTaskLayout.putConstraint(SpringLayout.NORTH, date, 5,
+                                           SpringLayout.SOUTH, name);
+            singleTaskLayout.putConstraint(SpringLayout.EAST, date, -5,
+                                           SpringLayout.WEST, priority);
+            
+            singleTaskLayout.putConstraint(SpringLayout.SOUTH, priority, -5,
+                                           SpringLayout.SOUTH, singleTaskPane);
+            singleTaskLayout.putConstraint(SpringLayout.EAST, priority, -10,
+                                           SpringLayout.EAST, singleTaskPane);
+                               
+            GridBagConstraints con = new GridBagConstraints();
+            con.insets = new Insets(5, 5, 5, 5);
+            con.weightx = 1;
+            con.anchor = GridBagConstraints.NORTHEAST;
+            con.fill = GridBagConstraints.HORIZONTAL;
+            con.gridx = 0;
+            con.gridy = i-1;
+            _taskList.add(singleTaskPane, con);
+            i++;
+        }
+        _taskList.revalidate();
+        _taskList.repaint();
+        
+        // update the overview based on dates
+        int dueToday = 0, dueTomorrow = 0, overdue = 0, completed = 0;
+        Calendar now = Calendar.getInstance();
+        Calendar today = (Calendar) now.clone();
+        today.set(Calendar.HOUR_OF_DAY, 0);
+        today.set(Calendar.MINUTE, 0);
+        today.set(Calendar.SECOND, 0);
+        today.set(Calendar.MILLISECOND, 0);
+        Calendar tomorrow = (Calendar) today.clone();
+        tomorrow.add(Calendar.DAY_OF_MONTH, 1);
+        Calendar twoDaysAfter = (Calendar) tomorrow.clone();
+        twoDaysAfter.add(Calendar.DAY_OF_MONTH, 1);
+        
+        for (int j = 0; j < tasks.size(); ++j) {
+            if (tasks.get(j).getIsCompleted()) {
+                completed++;
+                continue;
+            }
+            Calendar due = tasks.get(j).getDueDate();
+            if (due == null) {
+                continue;
+            }
+            if ((due.compareTo(today) >= 0) &&
+                (due.compareTo(tomorrow) < 0)) {
+                dueToday++;
+            } else if ((due.compareTo(tomorrow) >= 0) &&
+                       (due.compareTo(twoDaysAfter) < 0)) {
+                dueTomorrow++;
+            } 
+            if (due.compareTo(now) < 0) {
+                overdue++;
+            }
+        }
+        
+        _overview.setText(String.format("<html><u>Overview</u><br>" +
+                                        "%d due today<br>" +
+                                        "%d due tomorrow<br>" +
+                                        "%d overdue<br>" +
+                                        "%d completed</html>",
+                                        dueToday, dueTomorrow, overdue, completed));
     }
    
 }
